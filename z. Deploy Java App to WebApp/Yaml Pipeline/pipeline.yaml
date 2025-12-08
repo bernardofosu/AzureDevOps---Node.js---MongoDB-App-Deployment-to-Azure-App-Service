@@ -1,0 +1,212 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: nakodtech
+  demands:
+    - agent.name -equals Agent-1
+
+variables:
+  artifactName: drop
+
+stages:
+  # -------------------------
+  # STAGE 1: BUILD
+  # -------------------------
+  - stage: Build
+    displayName: "Build Java App"
+
+    jobs:
+      - job: BuildJob
+        displayName: "Maven Build & Publish JAR"
+
+        steps:
+          - task: Maven@4
+            displayName: "Maven Build"
+            inputs:
+              mavenPomFile: "pom.xml"
+              goals: "package"
+              publishJUnitResults: false
+
+          - task: CopyFiles@2
+            displayName: "Copy JAR to Artifact Folder"
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/target"
+              Contents: "*.jar"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish JAR Artifact"
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)"
+              artifactName: "$(artifactName)"
+
+  # -------------------------
+  # STAGE 2: DEPLOY
+  # -------------------------
+  - stage: Deploy
+    displayName: "Deploy Java JAR"
+    dependsOn: Build
+
+    jobs:
+      - job: DeployJob
+        displayName: "Deploy JAR to Azure App Service"
+
+        steps:
+          - download: current
+            artifact: drop
+
+          - task: AzureWebApp@1
+            displayName: "Deploy Spring Boot JAR"
+            inputs:
+              azureSubscription: "webapp-conn"
+              appType: "webAppLinux"
+              appName: "javaapp"
+              package: "$(Pipeline.Workspace)/drop/*.jar"
+              runtimeStack: "JAVA|11-java11"
+# trigger:
+#   branches:
+#     include:
+#       - main
+
+# pool:
+#   name: nakodtech
+#   demands:
+#     - agent.name -equals Agent-1
+
+# variables:
+#   artifactName: drop
+
+# stages:
+# # -------------------------
+# # STAGE 1: BUILD
+# # -------------------------
+# - stage: Build
+#   displayName: "Build Java App"
+
+#   jobs:
+#     - job: BuildJob
+#       displayName: "Maven Build & Publish JAR"
+
+#       steps:
+#         - task: Maven@4
+#           displayName: "Maven Build"
+#           inputs:
+#             mavenPomFile: "pom.xml"
+#             goals: "package"
+#             publishJUnitResults: false
+
+#         - task: CopyFiles@2
+#           displayName: "Copy JAR to Artifact Folder"
+#           inputs:
+#             SourceFolder: "$(Build.SourcesDirectory)/target"
+#             Contents: "*.jar"
+#             TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+#         - task: PublishBuildArtifacts@1
+#           displayName: "Publish JAR Artifact"
+#           inputs:
+#             pathToPublish: "$(Build.ArtifactStagingDirectory)"
+#             artifactName: "$(artifactName)"
+
+# # -------------------------
+# # STAGE 2: DEPLOY
+# # -------------------------
+# - stage: Deploy
+#   displayName: "Deploy Java JAR"
+#   dependsOn: Build
+
+#   jobs:
+#     - job: DeployJob
+#       displayName: "Deploy JAR to Azure App Service"
+
+#       steps:
+#         - download: current
+#           artifact: drop
+
+#         - task: AzureWebApp@1
+#           displayName: "Deploy Spring Boot JAR"
+#           inputs:
+#             azureSubscription: "webapp-conn"
+#             appType: "webAppLinux"
+#             appName: "javaapp"
+#             package: "$(Pipeline.Workspace)/drop/*.jar"
+#             runtimeStack: "JAVA|11-java11"
+
+# trigger:
+#   branches:
+#     include:
+#       - main
+
+# pool:
+#   name: nakodtech
+#   demands:
+#     - agent.name -equals Agent-1
+
+# variables:
+#   artifactName: drop
+
+# stages:
+# # -------------------------------------------------------
+# # STAGE 1: BUILD JAVA APP
+# # -------------------------------------------------------
+# - stage: Build
+#   displayName: "Build Java App"
+
+#   jobs:
+#     - job: BuildJob
+#       displayName: "Maven Build"
+
+#       steps:
+#         # 1. Build JAR
+#         - task: Maven@4
+#           displayName: "Maven Build"
+#           inputs:
+#             mavenPomFile: "pom.xml"
+#             goals: "package"
+#             publishJUnitResults: false
+
+#         # 2. Copy ONLY final JAR from target/
+#         - task: CopyFiles@2
+#           displayName: "Copy JAR to Artifact Folder"
+#           inputs:
+#             SourceFolder: "$(Build.SourcesDirectory)/target"
+#             Contents: "*.jar"
+#             TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+#         # 3. Publish JAR artifact (no ZIP!)
+#         - task: PublishBuildArtifacts@1
+#           displayName: "Publish JAR Artifact"
+#           inputs:
+#             pathToPublish: "$(Build.ArtifactStagingDirectory)"
+#             artifactName: "$(artifactName)"
+
+# # -------------------------------------------------------
+# # STAGE 2: DEPLOY (No ZIP)
+# # -------------------------------------------------------
+# - stage: Deploy
+#   displayName: "Deploy Java JAR"
+#   dependsOn: Build
+
+#   jobs:
+#     - job: DeployJob
+#       displayName: "Deploy JAR to App Service"
+
+#       steps:
+#         # 4. Download the artifact
+#         - download: current
+#           artifact: drop
+
+#         # 5. Deploy JAR
+#         - task: AzureRmWebAppDeployment@5
+#           displayName: "Deploy Spring Boot JAR"
+#           inputs:
+#             ConnectionType: "AzureRM"
+#             azureSubscription: "webapp-conn"
+#             appType: "webAppLinux"
+#             WebAppName: "javaapp"
+#             packageForLinux: "$(Pipeline.Workspace)/drop/*.jar"
+#             RuntimeStack: "JAVA|11-java11"
+
