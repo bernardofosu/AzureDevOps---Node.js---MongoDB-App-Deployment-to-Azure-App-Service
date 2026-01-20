@@ -97,7 +97,30 @@ Sensitive configuration is injected securely using App Service settings.
 - 📍 **A Record** → Maps domain to App Service IP
 - 🔍 **nslookup** → DNS verification
 
-📸 *Reference screenshots included in repo*
+
+## 📘 Detailed Configuration & Implementation Notes
+
+The full, step-by-step **hands-on configuration notes, screenshots, and pipeline setups** for this project are documented in the following sections of the repository:
+
+### 🔹 Azure DevOps YAML Pipelines (Node.js App Service)
+All YAML-based CI/CD pipeline notes, explanations, and configurations for **Node.js deployment to Azure App Service** can be found here:
+
+👉 https://github.com/bernardofosu/AzureDevOps---Node.js---MongoDB-App-Deployment-to-Azure-App-Service/tree/main/Yaml%20Pipeline%20for%20App%20Service
+
+---
+
+### 🔹 Azure DevOps Java Application Deployment (Web App)
+Complete notes covering **Java CI pipelines, release pipelines, app lifecycle management, and auto-start configuration** for Azure App Service are available here:
+
+👉 https://github.com/bernardofosu/AzureDevOps---Node.js---MongoDB-App-Deployment-to-Azure-App-Service/tree/main/z.%20Deploy%20Java%20App%20to%20WebApp
+
+---
+
+📌 These folders contain the **actual working notes used during implementation**, including:
+- Pipeline configurations
+- Troubleshooting steps
+- Azure UI screenshots
+- Commands, explanations, and best practices
 
 
 ## 📸 Project Evidence & Screenshots
